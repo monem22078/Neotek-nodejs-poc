@@ -1,23 +1,23 @@
 const { Client } = require('pg');
 
 const client = new Client({
-    host: "localhost",
-    user: "postgres",
-    port: "5432",
-    password: "admin",
-    database: "poc"
+    host: "10.139.248.33",
+    user: "income_verification_sit",
+    port: "31905",
+    password: "income_verification_sit",
+    database: "tspdb"
 })
 client.connect()
     .then(() => console.log("Connected to PostgreSQL database"))
     .catch(error => console.error("Error connecting to PostgreSQL database:", error));
 
 async function insertUserData(file1, file2, file3 , keyCloakID, status) {
-    let query = `DELETE FROM "users" Where keycloakid='${keyCloakID.toString()}'`;
+    let query = `DELETE FROM "nodejs-poc"."users" Where keycloakid='${keyCloakID.toString()}'`;
     console.log(query);
     await client.query(query);
     try {
         query = {
-            text: 'INSERT INTO "users" (file1, file2, file3 , keyCloakID, status) VALUES ($1, $2, $3 , $4, $5) RETURNING *',
+            text: 'INSERT INTO "nodejs-poc"."users" (file1, file2, file3 , keyCloakID, status) VALUES ($1, $2, $3 , $4, $5) RETURNING *',
             values: [file1, file2, file3 , keyCloakID, status]
         };
         const insertedUser = await client.query(query);
@@ -31,7 +31,7 @@ async function findByID(keyCloakID){
     console.log(keyCloakID);
     try{
         const query = {
-            text: 'SELECT * FROM "users" WHERE keyCloakID = $1',
+            text: 'SELECT * FROM "nodejs-poc"."users" WHERE keyCloakID = $1',
             values: [keyCloakID]
         };
         const userFiles = await client.query(query);
@@ -50,7 +50,7 @@ async function updateUserData(keyCloakID ,reqBody){
         const values = Object.values(reqBody);
 
         const query = {
-            text: `UPDATE users SET ${setFields} WHERE keyCloakID = $${Object.keys(reqBody).length + 1}`,
+            text: `UPDATE "nodejs-poc"."users" SET ${setFields} WHERE keyCloakID = $${Object.keys(reqBody).length + 1}`,
             values: [...values, keyCloakID]
         }
         const updatedUser = await client.query(query);
